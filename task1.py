@@ -27,8 +27,19 @@ class Record:
     def add_phone(self, phone):
         self.phones.append(Phone(phone))
 
+    def edit_name(self, new_name):
+        self.name.value = new_name
+
+    def edit_phone(self, old_phone, new_phone):
+        for phone in self.phones:
+            if phone.value == old_phone:
+                phone.value = new_phone
+                return
+        raise ValueError("Phone number not found in record.")
+
     def __str__(self):
-        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+        phones_str = ', '.join(str(phone.value) for phone in self.phones)
+        return f"Contact name: {self.name.value}, phones: {phones_str}"
 
 class AddressBook(UserDict):
     def add_record(self, record):
@@ -41,10 +52,15 @@ class AddressBook(UserDict):
         return self.data[name]
 
     def search_record(self, name):
-        return self.data.get(name)
+        for record in self.data.values():
+            if record.name.value == name:
+                return record
+        return None
 
 def main():
     book = AddressBook()
+
+    print("Welcome to the Address Book!")
 
     while True:
         print("\nOptions:")
