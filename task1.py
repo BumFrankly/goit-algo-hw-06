@@ -27,15 +27,29 @@ class Record:
     def add_phone(self, phone):
         self.phones.append(Phone(phone))
 
-    def edit_name(self, new_name):
-        self.name.value = new_name
-
-    def edit_phone(self, old_phone, new_phone):
-        for phone in self.phones:
-            if phone.value == old_phone:
-                phone.value = new_phone
+    def remove_phone(self, phone):
+        for p in self.phones:
+            if p.value == phone:
+                self.phones.remove(p)
                 return
         raise ValueError("Phone number not found in record.")
+
+    def edit_phone(self, old_phone, new_phone):
+        for p in self.phones:
+            if p.value == old_phone:
+                try:
+                    new_phone = Phone(new_phone)
+                except ValueError as e:
+                    raise ValueError(f"Error: {e}")
+                p.value = new_phone.value
+                return
+        raise ValueError("Phone number not found in record.")
+
+    def find_phone(self, phone):
+        for p in self.phones:
+            if p.value == phone:
+                return p
+        return None
 
     def __str__(self):
         phones_str = ', '.join(str(phone.value) for phone in self.phones)
@@ -45,17 +59,23 @@ class AddressBook(UserDict):
     def add_record(self, record):
         self.data[record.name.value] = record
 
-    def delete(self, name):
-        del self.data[name]
+    def delete_record(self, name):
+        if name in self.data:
+            del self.data[name]
+            print("Record removed successfully.")
+        else:
+            print("Record not found.")
 
-    def find(self, name):
-        return self.data[name]
+    def find_record(self, name):
+        return self.data.get(name)
 
-    def search_record(self, name):
-        for record in self.data.values():
-            if record.name.value == name:
-                return record
-        return None
+    def show_all_records(self):
+        if self.data:
+            print("All records in the address book:")
+            for name, record in self.data.items():
+                print(f"{name}: {record}")
+        else:
+            print("Address book is empty.")
 
 def main():
     book = AddressBook()
@@ -79,13 +99,17 @@ def main():
             book.add_record(record)
             print("Record added successfully.")
         elif choice == "2":
-            pass
+            name = input("Enter the name to search: ")
+            found_record = book.find_record(name)
+            if found_record:
+                print(found_record)
+            else:
+                print("Record not found.")
         elif choice == "3":
-            pass
+            name = input("Enter the name to remove: ")
+            book.delete_record(name)
         elif choice == "4":
-            print("All records in the address book:")
-            for name, record in book.data.items():
-                print(f"{name}: {record}")
+            book.show_all_records()
         elif choice == "5":
             print("Goodbye!")
             break
